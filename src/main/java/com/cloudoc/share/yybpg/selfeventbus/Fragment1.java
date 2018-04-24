@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.cloudoc.share.yybpg.selfeventbus.bus.DNBus;
+import com.cloudoc.share.yybpg.selfeventbus.bus.SimpleEventBus;
 import com.cloudoc.share.yybpg.selfeventbus.bus.Subscribe;
 
 /**
@@ -21,31 +21,31 @@ public class Fragment1 extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        DNBus.getDefault().unregister(this);
+        SimpleEventBus.getDefault().unregister(this);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable
             Bundle savedInstanceState) {
-        DNBus.getDefault().register(this);
+        SimpleEventBus.getDefault().register(this);
         View view = inflater.inflate(R.layout.fragment_1, container, false);
         view.findViewById(R.id.notify1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DNBus.getDefault().post(Constants.NOTIFY_F1_1, "我是Fragment1的数据");
+                SimpleEventBus.getDefault().post(Constants.NOTIFY_F1_1, "我是Fragment1的数据");
             }
         });
         view.findViewById(R.id.notify2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DNBus.getDefault().post(Constants.NOTIFY_F1_2, "我是Fragment1的数据", "我是第二个");
+                SimpleEventBus.getDefault().post(Constants.NOTIFY_F1_2, "我是Fragment1的数据", "我是第二个");
             }
         });
         view.findViewById(R.id.notify3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DNBus.getDefault().post(Constants.NOTIFY_F1_3, "我是Fragment1的数据", "我是第三个");
+                SimpleEventBus.getDefault().post(Constants.NOTIFY_F1_3, "我是Fragment1的数据", "我是第三个");
             }
         });
         return view;

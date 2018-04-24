@@ -1,6 +1,5 @@
 package com.cloudoc.share.yybpg.selfeventbus.bus;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +12,9 @@ import java.util.Map;
  * time   : 2018/04/24
  * desc   :
  */
-public class DNBus {
+public class SimpleEventBus {
 
-    private static DNBus defaultInstance;
+    private static SimpleEventBus defaultInstance;
     /**
      */
     private static final Map<Class<?>, List<SubscribeMethod>> METHOD_CACHE = new
@@ -26,7 +25,7 @@ public class DNBus {
      * 发送事件的时候 通过Key(标签)查找所有对应的订阅者
      * key 为 订阅的标签 , value为 [订阅者(函数所在的对象)、[订阅的标签、订阅者(函数)、(函数)参数]]
      */
-    private static final Map<String, List<Subscription>> SUBSCRIBES = new
+    private static final Map<String, List<Subscriber>> SUBSCRIBES = new
             HashMap<>();
 
     /**
@@ -36,11 +35,11 @@ public class DNBus {
     private static final Map<Class<?>, List<String>> REGISTERS = new
             HashMap<>();
 
-    public static DNBus getDefault() {
+    public static SimpleEventBus getDefault() {
         if (defaultInstance == null) {
-            synchronized (DNBus.class) {
+            synchronized (SimpleEventBus.class) {
                 if (defaultInstance == null) {
-                    defaultInstance = new DNBus();
+                    defaultInstance = new SimpleEventBus();
                 }
             }
         }
@@ -65,11 +64,11 @@ public class DNBus {
         if (null != lables) {
             for (String lable : lables) {
                 //根据标签查找记录
-                List<Subscription> subscriptions = SUBSCRIBES.get(lable);
-                if (null != subscriptions) {
-                    Iterator<Subscription> iterator = subscriptions.iterator();
+                List<Subscriber> subscribers = SUBSCRIBES.get(lable);
+                if (null != subscribers) {
+                    Iterator<Subscriber> iterator = subscribers.iterator();
                     while (iterator.hasNext()) {
-                        Subscription subscription = iterator.next();
+                        Subscriber subscription = iterator.next();
                         //对象是同一个 则删除
                         if (subscription.getSubscribe() == subscriber) {
                             iterator.remove();
@@ -97,13 +96,13 @@ public class DNBus {
             if (!labels.contains(label)) {
                 labels.add(label);
             }
-            List<Subscription> subscriptions = SUBSCRIBES.get(label);
-            if (subscriptions == null) {
-                subscriptions = new ArrayList<>();
-                SUBSCRIBES.put(label, subscriptions);
+            List<Subscriber> subscribers = SUBSCRIBES.get(label);
+            if (subscribers == null) {
+                subscribers = new ArrayList<>();
+                SUBSCRIBES.put(label, subscribers);
             }
-            Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
-            subscriptions.add(newSubscription);
+            Subscriber newSubscriber = new Subscriber(subscriber, subscriberMethod);
+            subscribers.add(newSubscriber);
         }
 
         REGISTERS.put(subscriberClass, labels);
@@ -150,10 +149,10 @@ public class DNBus {
      */
     public void post(String label, Object... params) {
         //获得所有对应的订阅者
-        List<Subscription> subscriptions = SUBSCRIBES.get(label);
-        for (Subscription subscription : subscriptions) {
+        List<Subscriber> subscribers = SUBSCRIBES.get(label);
+        for (Subscriber subscriber : subscribers) {
             //组装参数 执行函数
-            SubscribeMethod subscriberMethod = subscription.getSubscribeMethod();
+            SubscribeMethod subscriberMethod = subscriber.getSubscribeMethod();
             Class<?>[] parameterTypes = subscriberMethod.getParamsTypes();
             Object[] realParams = new Object[parameterTypes.length];
             if (null != params) {
@@ -166,7 +165,7 @@ public class DNBus {
                 }
             }
             try {
-                subscriberMethod.getMethod().invoke(subscription.getSubscribe(), realParams);
+                subscriberMethod.getMethod().invoke(subscriber.getSubscribe(), realParams);
             } catch (Throwable t) {
                 t.printStackTrace();
             }

@@ -5,11 +5,11 @@ package com.cloudoc.share.yybpg.selfeventbus.bus;
  * time   : 2018/04/24
  * desc   :
  */
-public class Subscription {
+public class Subscriber {
     private Object subscribe;
     private SubscribeMethod subscribeMethod ;
 
-    public Subscription(Object subscribe,SubscribeMethod subscribeMethod) {
+    public Subscriber(Object subscribe, SubscribeMethod subscribeMethod) {
         this.subscribe = subscribe;
         this.subscribeMethod = subscribeMethod;
     }
